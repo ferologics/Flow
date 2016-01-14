@@ -118,7 +118,6 @@ var styles = StyleSheet.create({
 		// borderWidth: 1,
 		// borderColor: '#48BBEC',
 		borderRadius: 2,
-		color: '#48BBEC',
     },
 
     loginButtons: {
