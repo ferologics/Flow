@@ -20,137 +20,195 @@ var {
 	Navigator,
 } = React
 
-class LoginView extends Component {
+var LoginView = React.createClass({
+
+	mixins: [ReactFireMixin],
+
+	getInitialState: function() {
+		return {
+			email: '',
+			pwd1: '',
+			pwd2: '',
+		}
+	},
   
-    render() {
+	componentWillMount: function() {
+		this.ref = new Firebase('https://pomodor0.firebaseio.com/');
+		this.bindAsArray(this.ref, 'storage');
+		console.log(this.ref.storage);
+	},
+
+	render: function() {
 		return (
 			<View style={styles.loginView}>
-				{this.renderLoginInterfaceContainer()}
+				<View style={styles.fields}>
+					<View style={styles.fieldsContainer}>
+						<TextInput
+									style={styles.emailField}
+									placeholder='email'/>
+
+						<View style={styles.pwdContainer}>
+							<TextInput
+										style={styles.pwdField}
+										placeholder='password'
+										key= 'pwd'/>
+							<TextInput
+										style={styles.pwdField}
+										placeholder='confirm password'
+										key= 'confirmPWD'/>
+						</View>
+					</View>
+				</View>
+
+				<View style={styles.buttons}>
+					<View style={styles.buttonsContainer}>
+						<NavButton
+							style={styles.signUpButton}
+							underlayColor='#99d9f4'
+							text='Sign Up'
+							textStyle={styles.signUpButtonText}
+							onPress={ () => this.navigateToTodayView()}>
+						</NavButton>
+
+						<NavButton
+							style={styles.loginButton}
+							underlayColor='transparent'
+							text='Already a member?'
+							textStyle={styles.loginButtonText}
+							onPress={ () => this.navigateToTodayView()}>
+						</NavButton>
+					</View>
+				</View>
 			</View>
 		);
-    }
+    },
 
-    renderLoginInterfaceContainer() {
-		return (
-		<View style={styles.loginInterfaceContainer}>
-			{this.renderLoginFields()}
-			{this.renderLoginButtons()}
-		</View>
-		);
-    }
-
-    renderLoginFields() {
-		return (
-			<View style={styles.loginFields}>
-
-				<TextInput 
-				style={styles.loginField}
-				placeholder='username'/>
-
-				<TextInput
-				style={styles.loginField}
-				placeholder='password'/>
-
-			</View>
-		);
-    }
-
-    navigateToTodayView() {
+	navigateToTodayView: function() {
 		this.props.navigator.push({
 			name:'TodayView',
 			component:TodayView,
 		});
-    }
+    },
 
-    renderLoginButtons() {
-		return (
-			<View style={styles.loginButtons}>
-				<NavButton
-					style={styles.loginButton}
-					uderlayColor='#99d9f4'
-					text='Login'
-					textStyle={styles.buttonText}
-					onPress={ () => this.navigateToTodayView()}>
-				</NavButton>
-			</View>
-		);
-    }
-}
+	authHandler: function(error, authData) {
+		if (error) {
+			console.log(" the error " + error);
+		} else {
+			console.log("user authenticated " + authData);
+		}
+	},
+});
 
 var styles = StyleSheet.create({
 
+	// the parent of all views in the login view
     loginView: {
 		flex: 1,
+		flexDirection: 'column',
+		backgroundColor: '#00796B',
+    },
+
+	// the parent of all the field related views
+	fields: {
+		flex: 72,
 		justifyContent: 'center',
-		alignItems: 'center',
 		backgroundColor: '#00796B',
-    },
+	},
 
-    loginInterfaceContainer: {
-		width:  (Dimensions.get('window').width * 0.8),
-		height: (Dimensions.get('window').height * 0.4),
+	// the parent of all the button related views
+	buttons: {
+		flex: 38,
+		justifyContent: 'center',
 		backgroundColor: '#00796B',
-		// justifyContent: 'center',
-		// alignItems: 'center',
-		// marginTop: (Dimensions.get('window').height / 4),
-		// marginLeft: (Dimensions.get('window').height / 6),
-    },
+	},
 
-    loginFields: {
-		backgroundColor: '#2ecc71',
-		// flexDirection : 'column',
-		// justifyContent: 'center',
-		// alignSelf: 'stretch',
-		// marginLeft: (Dimensions.get('window').width / 6),
-		// marginRight: (Dimensions.get('window').width / 6,
+	// Login fields setup
+	fieldsContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		backgroundColor: 'white',
+
+		margin: (Dimensions.get('window').width * 0.1),
 		borderRadius: 2,
+	},
+	pwdContainer: {
+		flex: 2,
+		justifyContent: 'center',
+		backgroundColor: 'white',
+
+		borderRadius: 2,
+		// backgroundColor: '#00796B',
+	},
+    emailField: {
+		flex: 1,
+		backgroundColor: '#2ecc71',
+
+		margin: 3,
+		marginTop: (Dimensions.get('window').height * 0.285),
+		marginBottom: (Dimensions.get('window').height * 0.05),
+		borderRadius: 2,
+
 		shadowColor: '#000000',
 		shadowOpacity: 0.5,
 		shadowRadius: 1,
 		shadowOffset: { width: 0, height: 2},
     },
-
-    loginField: {
-		height: 36,
-		padding: 4,
-		margin: 5,
-		fontSize: 18,
-		// borderWidth: 1,
-		// borderColor: '#48BBEC',
-		borderRadius: 2,
-    },
-
-    loginButtons: {
-		justifyContent: 'center',
-		marginTop: (Dimensions.get('window').height * 0.15),
+	pwdField: {
+		flex: 1,
 		backgroundColor: '#2ecc71',
+
+		margin: 3,
 		borderRadius: 2,
+
 		shadowColor: '#000000',
 		shadowOpacity: 0.5,
 		shadowRadius: 1,
 		shadowOffset: { width: 0, height: 2},
-    },
-	
-    loginButton: {
-		height: 36,
-		padding: 4,
-		margin: 5,
-		// borderWidth: 1,
-		// borderRadius: 2,
-    },
+	},
 
-    signUpButton: {
-		backgroundColor: '#57C2DC',
-		height: 36,
-		padding: 4,
-		margin: 5,
-    },
+	// Buttons setup
+	buttonsContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		flexDirection: 'column',
+		backgroundColor: '#00796B',
 
-	buttonText: {
+		margin: (Dimensions.get('window').width * 0.1),
+		borderRadius: 2,
+	},
+	signUpButton: {
+		height: (Dimensions.get('window').height * 0.08),
+		justifyContent: 'center',
+		backgroundColor: '#2ecc71',
+
+		padding: 4,
+		margin: 3,
+		borderRadius: 2,
+
+		shadowColor: '#000000',
+		shadowOpacity: 0.5,
+		shadowRadius: 1,
+		shadowOffset: { width: 0, height: 2},
+	},
+	loginButton: {
+		justifyContent: 'center',
+		alignSelf: 'center',
+		backgroundColor: '#00796B',
+
+		height: (Dimensions.get('window').height * 0.026),
+		width: (Dimensions.get('window').width * 0.35),
+
+		marginTop: 7,
+	},
+	signUpButtonText: {
 		fontSize: 18,
 		alignSelf: 'center',
 		textAlign: 'center',
-		paddingTop: 3,
+    },
+	loginButtonText: {
+		fontSize: 11,
+		alignSelf: 'center',
+		textAlign: 'center',
     },
 });
 

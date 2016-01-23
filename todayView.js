@@ -24,23 +24,24 @@ var TodayView = React.createClass({
 
 	getInitialState: function() {
 		return {
-			newTodoText: '',
 			dataSource: new ListView.DataSource({
 				rowHasChanged: (row1, row2) => row1 !== row2,
 			}),
-			items: [],
+			storage: [],
+			newTodoText: '',
+			email: '',
+			pwd1: '',
+			pwd2: '',
 		}
 	},
 
 	componentWillMount: function() {
-		this.ref = new Firebase('https://pomodor0.firebaseio.com/tasks');
-		this.bindAsArray(this.ref, 'items');
+		this.ref = new Firebase('https://pomodor0.firebaseio.com/');
+		this.bindAsArray(this.ref, 'storage');
 	},
 
-	// componentDidMount: function() {
-	// },
-
 	render: function() {
+		console.log(this.state.storage);
 		return (
 			<View style={{flex: 1, paddingTop: 22, backgroundColor: '#f1c40f'}}>
 				<View style={{ flex: 1, backgroundColor: '#00796B'}}>
@@ -57,7 +58,7 @@ var TodayView = React.createClass({
 
 	returnNumberOfPomodoros: function() {
 		var poms = 0;
-		var stuff = this.state.items;
+		var stuff = this.state.storage['tasks'];
 		for (var i = 0; i < stuff.length; i++) {
 			if (stuff[i].count != "") { poms = poms + stuff[i].count }
 		}
@@ -74,10 +75,11 @@ var TodayView = React.createClass({
 	},
 
 	renderListView: function() {
+		console.log('list view ' + this.state.storage[0]);
 		return (
 			<View style={{flex:1}}>
 				<ListView
-					dataSource={this.state.dataSource.cloneWithRows(this.state.items)}
+					dataSource={this.state.dataSource.cloneWithRows(this.state.storage[0])}
 					renderRow={this.renderTask}
 					style={styles.task}>
 				</ListView>
