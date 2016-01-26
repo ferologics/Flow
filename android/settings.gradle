@@ -1,0 +1,3 @@
+rootProject.name = 'Fuck_My_Life'
+
+include ':app'
