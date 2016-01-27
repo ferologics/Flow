@@ -4,20 +4,16 @@
 
 import Dimensions from 'Dimensions';
 
-var React = require('react-native');
-var ReactFireMixin = require('reactfire');
-var Firebase = require('firebase');
-var TodayView = require('./todayView');
-var NavButton = require('./NavButton');
+var React          = require( 'react-native' );
+var ReactFireMixin = require(    'reactfire' );
+var Firebase       = require(     'firebase' );
+var TodayView      = require(  './todayView' );
+var NavButton      = require(  './NavButton' );
 
 var {
 	StyleSheet,
-	Text,
 	TextInput,
 	View,
-	TouchableHighlight,
-	Component,
-	Navigator,
 } = React
 
 var LoginView = React.createClass({
@@ -31,7 +27,7 @@ var LoginView = React.createClass({
 			pwd2: '',
 		}
 	},
-  
+
 	componentWillMount: function() {
 		this.ref = new Firebase('https://pomodor0.firebaseio.com/');
 		this.bindAsArray(this.ref, 'storage');
@@ -40,26 +36,26 @@ var LoginView = React.createClass({
 
 	render: function() {
 		return (
-			<View style={styles.loginView}>
-				<View style={styles.fields}>
-					<View style={styles.fieldsContainer}>
+			<View style={[ styles.flex, styles.rows, styles.darkGreen ]}>
+				<View style={[ styles.fields, styles.center, styles.darkGreen ]}>
+					<View style={[ styles.flex, styles.center, styles.fieldsContainer, styles.darkGreen ]}>
 
-							<View style={styles.emailViewShadow}>
-								<TextInput  style={styles.emailField}
+							<View style={[ styles.emailView, styles.flex, styles.shadow, styles.darkGreen ]}>
+								<TextInput  style={[ styles.flex, styles.textFieldInset, styles.textFieldPadding, styles.lightGreen, styles.border ]}
 											placeholder='email'
 											key= 'email'/>
 							</View>
 
-							<View style={styles.pwdContainer}>
+							<View style={[ styles.pwdContainer, styles.lightGreen, styles.center, styles.shadow, styles.border ]}>
 
-								<View style={styles.pwdViewShadow}>
-									<TextInput  style={styles.pwdField}
+								<View style={[ styles.flex, {}, styles.lightGreen, styles.border ]}>
+									<TextInput  style={[ styles.flex, styles.textFieldInset, styles.textFieldPadding, styles.lightGreen, styles.border ]}
 												placeholder='password'
 												key= 'pwd'/>
 								</View>
 
-								<View style={styles.pwdViewShadow}>
-									<TextInput  style={styles.pwdField}
+								<View style={[ styles.flex,  styles.lightGreen, styles.border, styles.border ]}>
+									<TextInput  style={[ styles.flex, styles.textFieldInset, styles.textFieldPadding, styles.lightGreen, styles.border ]}
 												placeholder='confirm password'
 												key= 'confirmPWD'/>
 								</View>
@@ -67,22 +63,22 @@ var LoginView = React.createClass({
 					</View>
 				</View>
 
-				<View style={styles.buttons}>
-					<View style={styles.buttonsContainer}>
+				<View style={[ styles.buttons, styles.center ]}>
+					<View style={[ styles.buttonsContainer, styles.flex, styles.center ]}>
 						<NavButton
-							style={styles.signUpButton}
-							underlayColor='#99d9f4'
-							text='Sign Up'
-							textStyle={styles.signUpButtonText}
-							onPress={ () => this.navigateToTodayView()}>
+									style={[  styles.signUpButton, styles.shadow, styles.lightGreen, styles.center, styles.border ]}
+									underlayColor='#99d9f4'
+									text='Sign Up'
+									textStyle={styles.signUpButtonText}
+									onPress={ () => this.navigateToTodayView()}>
 						</NavButton>
 
 						<NavButton
-							style={styles.loginButton}
-							underlayColor='transparent'
-							text='Already a member?'
-							textStyle={styles.loginButtonText}
-							onPress={ () => this.navigateToTodayView()}>
+									style={[ styles.flex, styles.loginButton, styles.darkGreen, styles.border ]}
+									underlayColor='transparent'
+									text='Already a member?'
+									textStyle={styles.loginButtonText}
+									onPress={ () => this.navigateToTodayView()}>
 						</NavButton>
 					</View>
 				</View>
@@ -107,123 +103,72 @@ var LoginView = React.createClass({
 });
 
 var styles = StyleSheet.create({
-
-	// the parent of all views in the login view
-    loginView: {
-		flex: 1,
-		flexDirection: 'column',
-		backgroundColor: '#00796B',
-    },
-
-	// the parent of all the field related views
+	// field related view styles
 	fields: {
-		flex: 72,
-		justifyContent: 'center',
-		backgroundColor: '#00796B',
+		flex: 77,
 	},
-
-	// the parent of all the button related views
-	buttons: {
-		flex: 38,
-		justifyContent: 'center',
-		backgroundColor: '#00796B',
-	},
-
-	// Login fields setup
 	fieldsContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		backgroundColor: 'white',
-
-		margin: (Dimensions.get('window').width * 0.1),
-		borderRadius: 2,
+		margin: (Dimensions.get('window').width * 0.14),
 	},
 	pwdContainer: {
 		flex: 2,
-		justifyContent: 'center',
-		backgroundColor: 'white',
-
-		borderRadius: 2,
-		// backgroundColor: '#00796B',
 	},
-    emailField: {
-		flex: 1,
-		backgroundColor: '#2ecc71',
-
-		borderRadius: 2,
-    },
-	emailViewShadow: {
-		flex: 1,
-		backgroundColor: 'tomato',
-
-		marginTop: (Dimensions.get('window').height * 0.285),
+	emailView: {
+		marginTop: (Dimensions.get('window').height * 0.245),
 		marginBottom: (Dimensions.get('window').height * 0.05),
-
-		shadowColor: '#000000',
-		shadowOpacity: 0.5,
-		shadowRadius: 1,
-		shadowOffset: { width: 0, height: 2},
-	},
-	pwdField: {
-		flex: 1,
-		backgroundColor: '#2ecc71',
-
-		borderRadius: 2,
-	},
-	pwdViewShadow: {
-		flex: 1,
-		backgroundColor: 'tomato',
-
-		shadowColor: '#000000',
-		shadowOpacity: 0.5,
-		shadowRadius: 1,
-		shadowOffset: { width: 0, height: 2},
 	},
 
-	// Buttons setup
+	// button related view styles
+	buttons: {
+		flex: 38,
+	},
 	buttonsContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		flexDirection: 'column',
-		backgroundColor: '#00796B',
-
 		margin: (Dimensions.get('window').width * 0.1),
-		borderRadius: 2,
 	},
 	signUpButton: {
-		height: (Dimensions.get('window').height * 0.08),
-		justifyContent: 'center',
-		backgroundColor: '#2ecc71',
-
 		padding: 4,
-		margin: 3,
-		borderRadius: 2,
 
-		shadowColor: '#000000',
-		shadowOpacity: 0.5,
-		shadowRadius: 1,
-		shadowOffset: { width: 0, height: 2},
+		marginTop: (Dimensions.get('window').height * 0.116),
+		height: (Dimensions.get('window').height * 0.08),
 	},
 	loginButton: {
-		justifyContent: 'center',
+		marginTop: 7,
 		alignSelf: 'center',
-		backgroundColor: '#00796B',
 
 		height: (Dimensions.get('window').height * 0.026),
 		width: (Dimensions.get('window').width * 0.35),
-
-		marginTop: 7,
 	},
 	signUpButtonText: {
 		fontSize: 18,
-		alignSelf: 'center',
 		textAlign: 'center',
     },
 	loginButtonText: {
 		fontSize: 11,
-		alignSelf: 'center',
 		textAlign: 'center',
     },
+
+	// colors
+	lightGreen: { backgroundColor : '#2ecc71' },
+	darkGreen:  { backgroundColor : '#00796B' },
+
+	// reusable styles
+	flex:	 { flex           : 1        },
+	border:  { borderRadius   : 2        },
+	center:  { justifyContent : 'center' },
+	columns: { flexDirection  : 'row'    },
+	rows:	 { flexDirection  : 'column' },
+
+	// finishing touches
+	shadow:  {
+		shadowColor   : '#000000',
+		shadowOpacity : 0.4,
+		shadowRadius  : 1.7,
+		shadowOffset  : { width: 0, height: 3},
+	},
+
+	// misc
+	textFieldInset: { paddingLeft: 8 },
+	textFieldPadding: { padding: 2}
 });
 
 module.exports = LoginView;
