@@ -1,5 +1,4 @@
-// static login View component
-
+// login View component
 'use strict';
 
 import Dimensions from 'Dimensions';
@@ -15,7 +14,13 @@ var {
 	TextInput,
 	View,
 	Alert,
+	AsyncStorage,
 } = React
+
+var modes = {
+	LOGIN: 0,
+	SIGNUP: 1
+}
 
 var LoginView = React.createClass({
 
@@ -23,6 +28,7 @@ var LoginView = React.createClass({
 
 	getInitialState: function() {
 		return {
+			mode: modes.SIGNUP,
 			email: '',
 			pwd1: '',
 			pwd2: '',
@@ -44,6 +50,8 @@ var LoginView = React.createClass({
 							<View style={[ styles.emailView, styles.flex, styles.shadow, styles.darkGreen ]}>
 								<TextInput  style={[ styles.flex, styles.textFieldInset, styles.textFieldPadding, styles.lightGreen, styles.border ]}
 											placeholder='email'
+											autoCorrect={false}
+											keyboardType='email-address'
 											value={ this.state.email }
 											onChangeText={ (text) => this.setState({ email: text}) }
 											autoCapitalize='none'
@@ -55,15 +63,17 @@ var LoginView = React.createClass({
 								<View style={[ styles.flex, styles.lightGreen, styles.border ]}>
 									<TextInput  style={[ styles.flex, styles.textFieldInset, styles.textFieldPadding, styles.lightGreen, styles.border ]}
 												placeholder='password'
+												autoCorrect={false}
 												secureTextEntry={true}
 												value={ this.state.pwd1 }
 												onChangeText={ (text) => this.setState({ pwd1: text }) }
-												testID= 'pwd'/>
+												key= 'pwd'/>
 								</View>
 
 								<View style={[ styles.flex,  styles.lightGreen, styles.border, styles.border ]}>
 									<TextInput  style={[ styles.flex, styles.textFieldInset, styles.textFieldPadding, styles.lightGreen, styles.border ]}
 												placeholder='confirm password'
+												autoCorrect={false}
 												secureTextEntry={true}
 												value={this.state.pwd2}
 												onChangeText={ (text) => this.setState({ pwd2: text }) }
@@ -80,7 +90,7 @@ var LoginView = React.createClass({
 									underlayColor='#99d9f4'
 									text='Sign Up'
 									textStyle={styles.signUpButtonText}
-									onPress={ () => this.startSignup()}>
+									onPress={ () => this.authenticateUser()}>
 						</NavButton>
 
 						<NavButton
@@ -88,7 +98,7 @@ var LoginView = React.createClass({
 									underlayColor='transparent'
 									text='Already a member?'
 									textStyle={styles.loginButtonText}
-									onPress={ () => this.navigateToTodayView()}>
+									onPress={ () => this.authenticateUser()}>
 						</NavButton>
 					</View>
 				</View>
@@ -96,23 +106,26 @@ var LoginView = React.createClass({
 		);
     },
 
-	startSignup: function() {
+	authenticateUser: function() {
+		// based on state either log in or register
+		if (this.state.mode === modes.SIGNUP) {
+			this.startSignup();
+		} else if (this.state.mode === modes.LOGIN) {
+			// animate text change on button
+		}
+	},
 
+	startSignup: function() {
 		// check passwords & email
 		if (this.checkCredentials()) {
-			// register user
-			this.registerUser();
 
-			this.loginUser();
-
-			// (tbd) onboarding
-
-			// go to today view
-			this.navigateToTodayView();
+			this.registerUser().then(this.loginUser).then(this.navigateToTodayView);
+			// TODO (tbd) onboarding
 		}
 	},
 
 	checkCredentials: function() {
+		var self = this;
 		// check email
 		var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		if (re.test(this.state.email)) {
@@ -120,20 +133,21 @@ var LoginView = React.createClass({
 			if (this.state.pwd1 === this.state.pwd2) {
 				return true;
 			} else { 
-				return this.displayAlert("password", "The passwords don't match.");
+				return self.displayAlert("Invalid password", "The passwords don't match.");
 			}
 		} else { 
-			return this.displayAlert("email", "The specified email is not valid.");
+			return self.displayAlert("Invalid email", "The specified email is not valid.");
 		}
 	},
 
 	displayAlert: function(title, text) {
 		var button = [];
-		if      (title === 'email'   ) { button= [ { text: 'OK', onPress: () => this.clearEmail() } ] }
-		else if (title === 'password') { button= [ { text: 'OK', onPress: () => this.clearPwd()   } ] }
+		if      (title === 'Invalid email'   ) { button= [ { text: 'OK', onPress: () => this.clearEmail()          } ] }
+		else if (title === 'Invalid password') { button= [ { text: 'OK', onPress: () => this.clearPwd()            } ] }
+		else								   { button= [ { text: 'OK', onPress: () => console.log('other alert') } ] }
 				
 		Alert.alert(
-			'Invalid ' + title,
+			title,
 			text,
 			button
 		);
@@ -155,12 +169,13 @@ var LoginView = React.createClass({
 
 	registerUser() {
 		// add child to users
-		this.ref.createUser({
+		return this.ref.createUser({
 			email:    this.state.email,
 			password: this.state.pwd1
 		}, function(error, userData) {
 			if (error) {
-				console.log('error creating user: ', error); // TODO add alerts
+				this.displayAlert('Error registering in', 'There was an error during registration, try checking your internet connection and registering again.');
+				console.log('error creating user: ', error);
 			} else {
 				console.log('success! UID: ', userData.uid);
 			}
@@ -168,19 +183,36 @@ var LoginView = React.createClass({
 	},
 
 	loginUser() {
-		console.log('authenticating the user to log in')
-		this.ref.authWithPassword({
+		var self = this;
+		return this.ref.authWithPassword({
 			email: this.state.email,
 			password: this.state.pwd1
 		}, function(error, authData) {
 			if (error) {
-				console.log('Error logging in -- ', error); // TODO add alerts
+				self.displayAlert('Error logging in', 'There was an error loggin in, try checking your internet connection and logging in again.');
+				console.log('Error logging in -- ', error);
 			} else {
+				// store the UID of the user
+				self.storeToken(authData.token);
 				console.log('Success logging in! -- ', authData);
 			}
 		}, { 
 			remember: 'default'
 		});
+	},
+
+	storeToken: function(token) {
+		try {
+			AsyncStorage.setItem('TOKEN', token, (error, result) => {
+				if (error) {
+					console.log('error saving token -- ', error);
+				} else {
+					console.log('success saving token -- ', result);
+				}
+			});
+		} catch(error) {
+			console.log('error saving token -- ', error);
+		}
 	},
 
 	navigateToTodayView: function() {
@@ -189,40 +221,6 @@ var LoginView = React.createClass({
 			component:TodayView,
 		});
     },
-
-	handlePwdChange: function(index, text) {
-		var stars='';
-		var pwd = '';
-		for (var i=0, len=text.length; i<len; i++) {
-			stars += '*';
-		}
-
-		switch (index) {
-			case 1:
-				if (this.state.actualPwd1.length < text.length) {
-					pwd = this.state.actualPwd1 + text.charAt(text.length -1);
-				} else { 
-					pwd = this.state.actualPwd1.slice(0, -1);
-				}
-				this.setState({
-					pwd1: stars,
-					actualPwd1: pwd 
-				});
-				break;
-			case 2:
-				if (this.state.actualPwd2.length < text.length) {
-					pwd = this.state.actualPwd2 + text.charAt(text.length -1);
-				} else { 
-					pwd = this.state.actualPwd2.slice(0, -1);
-				}
-				this.setState({
-					pwd2: stars,
-					actualPwd2: pwd 
-				});
-				break;
-		}
-		console.log('1: ' + this.state.actualPwd1 + ' 2: ' + this.state.actualPwd2 );
-	},
 });
 
 var styles = StyleSheet.create({

@@ -36,12 +36,17 @@ var TodayView = React.createClass({
 	},
 
 	componentWillMount: function() {
-		this.ref = new Firebase('https://pomodor0.firebaseio.com/');
+		this.ref = new Firebase('https://pomodor0.firebaseio.com/tasks');
 		this.bindAsArray(this.ref, 'storage');
+	},
+
+	componentDidMount: function() {
+
 	},
 
 	render: function() {
 		console.log(this.state.storage);
+
 		return (
 			<View style={{flex: 1, paddingTop: 22, backgroundColor: '#f1c40f'}}>
 				<View style={{ flex: 1, backgroundColor: '#00796B'}}>
@@ -59,9 +64,11 @@ var TodayView = React.createClass({
 	returnNumberOfPomodoros: function() {
 		var poms = 0;
 		var stuff = this.state.storage['tasks'];
+
 		for (var i = 0; i < stuff.length; i++) {
 			if (stuff[i].count != "") { poms = poms + stuff[i].count }
 		}
+
 		console.log(poms);
 		return poms;
 	},
@@ -75,11 +82,12 @@ var TodayView = React.createClass({
 	},
 
 	renderListView: function() {
-		console.log('list view ' + this.state.storage[0]);
+		console.log('list view ' + this.state.storage);
+
 		return (
 			<View style={{flex:1}}>
 				<ListView
-					dataSource={this.state.dataSource.cloneWithRows(this.state.storage[0])}
+					dataSource={this.state.dataSource.cloneWithRows(this.state.storage)}
 					renderRow={this.renderTask}
 					style={styles.task}>
 				</ListView>
@@ -93,7 +101,7 @@ var TodayView = React.createClass({
 				<TextInput style={styles.taskText} value={task.title}>
 				</TextInput>
 
-				<TextInput style={styles.countText} value={''+task.count} keyboardType='numeric' >
+				<TextInput style={styles.countText} value={'' + task.count} keyboardType='numeric' >
 				</TextInput>
 			</View>
 		)
