@@ -7,7 +7,6 @@ var ReactFireMixin = require('reactfire');
 var Firebase = require('firebase');
 var NavButton = require('./NavButton');
 var TimerView = require('./timerView');
-var _ = require('underscore');
 
 var {
   ListView,
