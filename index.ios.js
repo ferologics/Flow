@@ -111,4 +111,4 @@ var styles = StyleSheet.create({
 	},
 });
 
-AppRegistry.registerComponent('Fuck_My_Life', () => Fuck_My_Life);
+AppRegistry.registerComponent('Project', () => Fuck_My_Life);
